@@ -22,7 +22,6 @@ C:\Users\amikulak1\Documents\Rest-API\WebApplication\WebApplication\obj\Debug\ne
 C:\Users\amikulak1\Documents\Rest-API\WebApplication\WebApplication\obj\Debug\net5.0\staticwebassets\WebApplication.StaticWebAssets.xml
 C:\Users\amikulak1\Documents\Rest-API\WebApplication\WebApplication\obj\Debug\net5.0\scopedcss\bundle\WebApplication.styles.css
 C:\Users\amikulak1\Documents\Rest-API\WebApplication\WebApplication\obj\Debug\net5.0\WebApplication.RazorTargetAssemblyInfo.cache
-C:\Users\amikulak1\Documents\Rest-API\WebApplication\WebApplication\obj\Debug\net5.0\WebApplication.csproj.CopyComplete
 C:\Users\amikulak1\Documents\Rest-API\WebApplication\WebApplication\obj\Debug\net5.0\WebApplication.dll
 C:\Users\amikulak1\Documents\Rest-API\WebApplication\WebApplication\obj\Debug\net5.0\ref\WebApplication.dll
 C:\Users\amikulak1\Documents\Rest-API\WebApplication\WebApplication\obj\Debug\net5.0\WebApplication.pdb
