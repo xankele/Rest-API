@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WebApplication.Data;
 using WebApplication.Models;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace WebApplication.Controllers
 {
@@ -13,30 +14,55 @@ namespace WebApplication.Controllers
     [ApiController]
     public class CatsController : ControllerBase
     {
-        private static List<Cat> cats = new List<Cat>()
+        private ApiDbContext _dbContext;
+        public CatsController(ApiDbContext dbContext)
         {
-            new Cat(){Id = 1, Age = 2, Breed = "serval", Name = "Ania", Sex = "female" }
-        };
+            _dbContext = dbContext;
+        }
+            
+        // GET: api/<CatsController>
         [HttpGet]
         public IEnumerable<Cat> Get()
         {
-            return cats;
+            return _dbContext.Cats;
         }
+
+        // GET api/<CatsController>/5
+        [HttpGet("{id}")]
+        public Cat Get(int id)
+        {
+            var cat = _dbContext.Cats.Find(id);
+            return cat;
+        }
+
+        // POST api/<CatsController>
         [HttpPost]
         public void Post([FromBody] Cat cat)
         {
-            cats.Add(cat);
+            _dbContext.Cats.Add(cat);
+            _dbContext.SaveChanges();
         }
+
+        // PUT api/<CatsController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Cat cat)
+        public void Put(int id, [FromBody] Cat catObj)
         {
-            cats[id] = cat;
+            var cat = _dbContext.Cats.Find(id);
+            cat.Name = catObj.Name;
+            cat.Age = catObj.Age;
+            cat.Breed = catObj.Breed;
+            cat.Sex = catObj.Sex;
+            _dbContext.SaveChanges();
+
         }
+
+        // DELETE api/<CatsController>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            cats.RemoveAt(id);
+            var cat = _dbContext.Cats.Find(id);
+            _dbContext.Cats.Remove(cat);
+            _dbContext.SaveChanges();
         }
     }
-    
 }
