@@ -9,8 +9,8 @@ namespace WebApplication.Models
     {
         public int Id { get; set; }
         public DateTime Date { get; set; }
-        public int IdCat { get; set; }
-        public int IdUser { get; set; }
+        public Cat Cat { get; set; }
+        public User User { get; set; }
         
     }
 }

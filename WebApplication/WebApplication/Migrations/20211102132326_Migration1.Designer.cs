@@ -10,8 +10,8 @@ using WebApplication.Data;
 namespace WebApplication.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20211102122105_FirstMigration")]
-    partial class FirstMigration
+    [Migration("20211102132326_Migration1")]
+    partial class Migration1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,16 +28,20 @@ namespace WebApplication.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("CatId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IdCat")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdUser")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CatId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Adoptions");
                 });
@@ -85,6 +89,21 @@ namespace WebApplication.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("WebApplication.Models.Adoption", b =>
+                {
+                    b.HasOne("WebApplication.Models.Cat", "Cat")
+                        .WithMany()
+                        .HasForeignKey("CatId");
+
+                    b.HasOne("WebApplication.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Cat");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }
