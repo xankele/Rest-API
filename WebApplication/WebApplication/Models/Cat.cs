@@ -13,19 +13,18 @@ namespace WebApplication.Models
     }
     public class Cat
     {
-//[Key]
-       // [Required]
+        [Key]
         public int Id { get; set; }
-        //[Required]
-       // [StringLength(30, ErrorMessage = "{0} length must be between {2} and {1}.", MinimumLength = 3)]
+        [Required]
+        [StringLength(30, ErrorMessage = "{0} length must be between {2} and {1}.", MinimumLength = 3)]
         public string Name { get; set; }
-        //[Required]
+        [Required]
         public Sex Sex { get; set; }
-        //[Required]
-        //[StringLength(30, ErrorMessage = "{0} length must be between {2} and {1}.", MinimumLength = 3)]
+        [Required]
+        [StringLength(30, ErrorMessage = "{0} length must be between {2} and {1}.", MinimumLength = 3)]
         public string Breed { get; set; }
-        //[Required]
-        //[Range(0, 200)]
+        [Required]
+        [Range(0, 200)]
         public int Age { get; set; }
     }
 }

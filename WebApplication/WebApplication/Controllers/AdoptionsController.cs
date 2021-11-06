@@ -55,9 +55,9 @@ namespace WebApplication.Controllers
         public async Task<IActionResult> Put(int id, [FromBody] Adoption adoptionObj)
         {
             var adoption = await _dbContext.Adoptions.FindAsync(id);
-            //TODO: to nie dziala
-            var cat = _dbContext.Cats.Find(adoption.Cat);
-            var user = await _dbContext.Users.FindAsync(adoption.User);
+            var user = await _dbContext.Users.FindAsync(adoptionObj.User);
+            var cat = _dbContext.Cats.Find(adoptionObj.Cat);
+
             if (adoption == null || cat == null || user == null)
             {
                 return NotFound("No record found against this Id");
