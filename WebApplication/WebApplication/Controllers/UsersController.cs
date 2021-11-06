@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
 using WebApplication.Models;
 
@@ -21,45 +23,66 @@ namespace WebApplication.Controllers
         }
         // GET: api/<UsersController>
         [HttpGet]
-        public IEnumerable<User> Get()
+        public async Task<IActionResult> Get()
         {
-            return _dbContext.Users;
+            return Ok(await _dbContext.Users.ToListAsync());
         }
 
         // GET api/<UsersController>/5
         [HttpGet("{id}")]
-        public User Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var user = _dbContext.Users.Find(id);
-            return user;
+            var user = await _dbContext.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound("No record found against this Id");
+            }
+            return Ok(user);
         }
 
         // POST api/<UsersController>
         [HttpPost]
-        public void Post([FromBody] User user)
+        public async Task<IActionResult> Post([FromBody] User user)
         {
-            _dbContext.Users.Add(user);
-            _dbContext.SaveChanges();
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+            return StatusCode(StatusCodes.Status201Created);
         }
 
         // PUT api/<UsersController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] User userObj)
+        public async Task<IActionResult> Put(int id, [FromBody] User userObj)
         {
-            var user = _dbContext.Users.Find(id);
-            user.Name = userObj.Name;
-            user.LastName = userObj.LastName;
-            user.PhoneNumber = userObj.PhoneNumber;
-            _dbContext.SaveChanges();
+            var user = await _dbContext.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound("No record found against this Id");
+            }
+            else
+            {
+                user.Name = userObj.Name;
+                user.LastName = userObj.LastName;
+                user.PhoneNumber = userObj.PhoneNumber;
+                await _dbContext.SaveChangesAsync();
+                return Ok("Record updated successfully");
+            }
         }
 
         // DELETE api/<UsersController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var user = _dbContext.Users.Find(id);
-            _dbContext.Users.Remove(user);
-            _dbContext.SaveChanges();
+            var user = await _dbContext.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound("No record found against this Id");
+            }
+            else
+            {
+                _dbContext.Users.Remove(user);
+                await _dbContext.SaveChangesAsync();
+                return Ok("Record deleted");
+            }
         }
     }
 }

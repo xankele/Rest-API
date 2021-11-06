@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
 using WebApplication.Models;
 
@@ -22,45 +24,69 @@ namespace WebApplication.Controllers
 
         // GET: api/<AdoptionsController>
         [HttpGet]
-        public IEnumerable<Adoption> Get()
+        public async Task<IActionResult> Get()
         {
-            return _dbContext.Adoptions;
+            return Ok(await _dbContext.Adoptions.ToListAsync());
         }
 
         // GET api/<AdoptionsController>/5
         [HttpGet("{id}")]
-        public Adoption Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var adoption = _dbContext.Adoptions.Find(id);
-            return adoption;
+            var adoption = await _dbContext.Adoptions.FindAsync(id);
+            if (adoption == null)
+            {
+                return NotFound("No record found against this Id");
+            }
+            return Ok(adoption);
         }
 
         // POST api/<AdoptionsController>
         [HttpPost]
-        public void Post([FromBody] Adoption adoption)
+        public async Task<IActionResult> Post([FromBody] Adoption adoption)
         {
-            _dbContext.Adoptions.Add(adoption);
-            _dbContext.SaveChanges();
+            await _dbContext.Adoptions.AddAsync(adoption);
+            await _dbContext.SaveChangesAsync();
+            return StatusCode(StatusCodes.Status201Created);
         }
 
         // PUT api/<AdoptionsController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Adoption adoptionObj)
+        public async Task<IActionResult> Put(int id, [FromBody] Adoption adoptionObj)
         {
-            var adoption = _dbContext.Adoptions.Find(id);
-            adoption.Date = adoptionObj.Date;
-            adoption.Cat = adoptionObj.Cat;
-            adoption.User = adoptionObj.User;
-            _dbContext.SaveChanges();
+            var adoption = await _dbContext.Adoptions.FindAsync(id);
+            var user = await _dbContext.Users.FindAsync(adoptionObj.User);
+            var cat = _dbContext.Cats.Find(adoptionObj.Cat);
+
+            if (adoption == null || cat == null || user == null)
+            {
+                return NotFound("No record found against this Id");
+            }
+            else
+            {
+                adoption.Date = adoptionObj.Date;
+                adoption.Cat = adoptionObj.Cat;
+                adoption.User = adoptionObj.User;
+                await _dbContext.SaveChangesAsync();
+                return Ok("Record updated successfully");
+            }
         }
 
         // DELETE api/<AdoptionsController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var adoption = _dbContext.Adoptions.Find(id);
-            _dbContext.Adoptions.Remove(adoption);
-            _dbContext.SaveChanges();
+            var adoption = await _dbContext.Adoptions.FindAsync(id);
+            if (adoption == null)
+            {
+                return NotFound("No record found against this Id");
+            }
+            else
+            {
+                _dbContext.Adoptions.Remove(adoption);
+                await _dbContext.SaveChangesAsync();
+                return Ok("Record deleted");
+            }
         }
     }
 }

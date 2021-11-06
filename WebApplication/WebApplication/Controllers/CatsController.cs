@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
 using WebApplication.Models;
 
@@ -22,47 +24,68 @@ namespace WebApplication.Controllers
             
         // GET: api/<CatsController>
         [HttpGet]
-        public IEnumerable<Cat> Get()
+        public async Task<IActionResult> Get()
         {
-            return _dbContext.Cats;
+            return Ok(await _dbContext.Cats.ToListAsync());
         }
 
         // GET api/<CatsController>/5
         [HttpGet("{id}")]
-        public Cat Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var cat = _dbContext.Cats.Find(id);
-            return cat;
+            var cat = await _dbContext.Cats.FindAsync(id);
+            if (cat == null)
+            {
+                return NotFound("No record found against this Id");
+            }
+            return Ok(cat);
         }
 
         // POST api/<CatsController>
         [HttpPost]
-        public void Post([FromBody] Cat cat)
+        public async Task<IActionResult> Post([FromBody] Cat cat)
         {
-            _dbContext.Cats.Add(cat);
-            _dbContext.SaveChanges();
+            await _dbContext.Cats.AddAsync(cat);
+            await _dbContext.SaveChangesAsync();
+            return StatusCode(StatusCodes.Status201Created);
         }
 
         // PUT api/<CatsController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Cat catObj)
+        public async Task<IActionResult> Put(int id, [FromBody] Cat catObj)
         {
-            var cat = _dbContext.Cats.Find(id);
-            cat.Name = catObj.Name;
-            cat.Age = catObj.Age;
-            cat.Breed = catObj.Breed;
-            cat.Sex = catObj.Sex;
-            _dbContext.SaveChanges();
-
+            var cat = await _dbContext.Cats.FindAsync(id);
+            if(cat == null)
+            {
+                return NotFound("No record found against this Id");
+            }
+            else
+            {
+                cat.Name = catObj.Name;
+                cat.Age = catObj.Age;
+                cat.Breed = catObj.Breed;
+                cat.Sex = catObj.Sex;
+                await _dbContext.SaveChangesAsync();
+                return Ok("Record updated successfully");
+            }
         }
 
         // DELETE api/<CatsController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var cat = _dbContext.Cats.Find(id);
-            _dbContext.Cats.Remove(cat);
-            _dbContext.SaveChanges();
+            var cat = await _dbContext.Cats.FindAsync(id);
+            if(cat == null)
+            {
+                return NotFound("No record found against this Id");
+            }
+            else
+            {
+                _dbContext.Cats.Remove(cat);
+                await _dbContext.SaveChangesAsync();
+                return Ok("Record deleted");
+            }
+            
         }
     }
 }

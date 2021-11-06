@@ -28,9 +28,9 @@ namespace WebApplication.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Sex = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Breed = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Sex = table.Column<int>(type: "int", nullable: false),
+                    Breed = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     Age = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -44,9 +44,9 @@ namespace WebApplication.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false)
                 },
                 constraints: table =>
                 {
