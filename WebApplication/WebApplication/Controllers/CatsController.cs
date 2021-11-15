@@ -87,5 +87,17 @@ namespace WebApplication.Controllers
             }
             
         }
+        //GET SearchCats
+        [HttpGet("[action]")]
+        public async Task<IActionResult> SearchCats(string query)
+        {
+            var cat = await _dbContext.Cats.Where(x => x.Name.StartsWith(query)).ToListAsync();
+            if (cat == null)
+            {
+                return NotFound("No record found");
+            }
+            return Ok(cat);
+        }
+
     }
 }
