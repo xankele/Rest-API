@@ -24,9 +24,12 @@ namespace WebApplication.Controllers
             
         // GET: api/<CatsController>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(int? pageNumber, int? pageSize)
         {
-            return Ok(await _dbContext.Cats.ToListAsync());
+            int currentPageSize = pageSize ?? 5;
+            int currentPageNumber = pageNumber ?? 1;
+            var cats = await _dbContext.Cats.ToListAsync();
+            return Ok(cats.Skip((currentPageNumber -1) * currentPageSize).Take(currentPageSize));
         }
 
         // GET api/<CatsController>/5
