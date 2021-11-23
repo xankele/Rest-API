@@ -24,11 +24,32 @@ namespace WebApplication.Controllers
 
         // GET: api/<AdoptionsController>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(int? pageNumber, int? pageSize)
         {
-            return Ok(await _dbContext.Adoptions.ToListAsync());
+            int currentPageSize = pageSize ?? 5;
+            int currentPageNumber = pageNumber ?? 1;
+            var adoptions = await _dbContext.Adoptions.ToListAsync();
+            return Ok(adoptions.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize));
         }
-
+        // GET: api/<AdoptionsController>
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetSortedByDate(string sort)
+        {
+            IQueryable<Adoption> adoptions;
+            switch (sort)
+            {
+                case "desc":
+                    adoptions = _dbContext.Adoptions.OrderByDescending(x => x.Date);
+                    break;
+                case "asc":
+                    adoptions = _dbContext.Adoptions.OrderBy(x => x.Date);
+                    break;
+                default:
+                    adoptions = _dbContext.Adoptions;
+                    break;
+            }
+            return Ok(adoptions);
+        }
         // GET api/<AdoptionsController>/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
@@ -45,9 +66,16 @@ namespace WebApplication.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Adoption adoption)
         {
-            await _dbContext.Adoptions.AddAsync(adoption);
-            await _dbContext.SaveChangesAsync();
-            return StatusCode(StatusCodes.Status201Created);
+            if (ModelState.IsValid)
+            {
+                await _dbContext.Adoptions.AddAsync(adoption);
+                await _dbContext.SaveChangesAsync();
+                return StatusCode(StatusCodes.Status201Created);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
 
         // PUT api/<AdoptionsController>/5

@@ -23,11 +23,32 @@ namespace WebApplication.Controllers
         }
         // GET: api/<UsersController>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(int? pageNumber, int? pageSize)
         {
-            return Ok(await _dbContext.Users.ToListAsync());
+            int currentPageSize = pageSize ?? 5;
+            int currentPageNumber = pageNumber ?? 1;
+            var users = await _dbContext.Users.ToListAsync();
+            return Ok(users.Skip((currentPageNumber-1)*currentPageSize).Take(currentPageSize));
         }
-
+        // GET: api/<AdoptionsController>
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetSortedByLastName(string sort)
+        {
+            IQueryable<User> users;
+            switch (sort)
+            {
+                case "desc":
+                    users = _dbContext.Users.OrderByDescending(x => x.LastName);
+                    break;
+                case "asc":
+                    users = _dbContext.Users.OrderBy(x => x.LastName);
+                    break;
+                default:
+                    users = _dbContext.Users;
+                    break;
+            }
+            return Ok(users);
+        }
         // GET api/<UsersController>/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
@@ -44,9 +65,17 @@ namespace WebApplication.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] User user)
         {
-            await _dbContext.Users.AddAsync(user);
-            await _dbContext.SaveChangesAsync();
-            return StatusCode(StatusCodes.Status201Created);
+            if (ModelState.IsValid)
+            {
+                await _dbContext.Users.AddAsync(user);
+                await _dbContext.SaveChangesAsync();
+                return StatusCode(StatusCodes.Status201Created);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
+                
         }
 
         // PUT api/<UsersController>/5

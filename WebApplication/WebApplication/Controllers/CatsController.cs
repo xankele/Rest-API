@@ -21,15 +21,32 @@ namespace WebApplication.Controllers
         {
             _dbContext = dbContext;
         }
-            
+
         // GET: api/<CatsController>
         [HttpGet]
-        public async Task<IActionResult> Get(int? pageNumber, int? pageSize)
+        public async Task<IActionResult> Get(string? sort, string? search, int? pageNumber, int? pageSize)
         {
             int currentPageSize = pageSize ?? 5;
             int currentPageNumber = pageNumber ?? 1;
-            var cats = await _dbContext.Cats.ToListAsync();
-            return Ok(cats.Skip((currentPageNumber -1) * currentPageSize).Take(currentPageSize));
+            string currentSort = sort ?? "desc";
+            IQueryable<Cat> cats = _dbContext.Cats;
+            
+            if (search != null)
+            {
+                currentPageNumber = 1;
+                cats = cats.Where(s => s.Name.Contains(search)
+                                       || s.Breed.Contains(search));
+            }
+            switch (currentSort)
+            {
+                case "desc":
+                    cats = cats.OrderByDescending(x => x.Name);
+                    break;
+                case "asc":
+                    cats = cats.OrderBy(x => x.Name);
+                    break;
+            }
+            return Ok(cats.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize));
         }
 
         // GET api/<CatsController>/5
@@ -48,9 +65,17 @@ namespace WebApplication.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Cat cat)
         {
-            await _dbContext.Cats.AddAsync(cat);
-            await _dbContext.SaveChangesAsync();
-            return StatusCode(StatusCodes.Status201Created);
+            if(ModelState.IsValid)
+            {
+                await _dbContext.Cats.AddAsync(cat);
+                await _dbContext.SaveChangesAsync();
+                return StatusCode(StatusCodes.Status201Created);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
+            
         }
 
         // PUT api/<CatsController>/5
