@@ -23,31 +23,39 @@ namespace WebApplication.Controllers
         }
         // GET: api/<UsersController>
         [HttpGet]
-        public async Task<IActionResult> Get(int? pageNumber, int? pageSize)
+        public async Task<IActionResult> Get(string? sort, string? searchName, string? searchLastName, string? searchPhoneNumber, int? pageNumber, int? pageSize)
         {
             int currentPageSize = pageSize ?? 5;
             int currentPageNumber = pageNumber ?? 1;
-            var users = await _dbContext.Users.ToListAsync();
-            return Ok(users.Skip((currentPageNumber-1)*currentPageSize).Take(currentPageSize));
-        }
-        // GET: api/<AdoptionsController>
-        [HttpGet("[action]")]
-        public async Task<IActionResult> GetSortedByLastName(string sort)
-        {
-            IQueryable<User> users;
-            switch (sort)
+            string currentSort = sort ?? "desc";
+            IQueryable<User> users = _dbContext.Users;
+
+            if (searchName != null || searchLastName != null || searchPhoneNumber != null)
+            {
+                currentPageNumber = 1;
+                if (searchName != null)
+                {
+                    users = users.Where(s => s.Name.Contains(searchName));
+                }
+                if (searchLastName != null)
+                {
+                    users = users.Where(s => s.LastName.Contains(searchLastName));
+                }
+                if (searchPhoneNumber != null)
+                {
+                    users = users.Where(s => s.PhoneNumber.Contains(searchPhoneNumber));
+                }
+            }
+            switch (currentSort)
             {
                 case "desc":
-                    users = _dbContext.Users.OrderByDescending(x => x.LastName);
+                    users = users.OrderByDescending(x => x.LastName);
                     break;
                 case "asc":
-                    users = _dbContext.Users.OrderBy(x => x.LastName);
-                    break;
-                default:
-                    users = _dbContext.Users;
+                    users = users.OrderBy(x => x.LastName);
                     break;
             }
-            return Ok(users);
+            return Ok(users.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize));
         }
         // GET api/<UsersController>/5
         [HttpGet("{id}")]

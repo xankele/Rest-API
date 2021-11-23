@@ -24,18 +24,32 @@ namespace WebApplication.Controllers
 
         // GET: api/<CatsController>
         [HttpGet]
-        public async Task<IActionResult> Get(string? sort, string? search, int? pageNumber, int? pageSize)
+        public async Task<IActionResult> Get(string? sort, string? searchName, string? searchBreed, int? searchAge, int? searchSex, int? pageNumber, int? pageSize)
         {
             int currentPageSize = pageSize ?? 5;
             int currentPageNumber = pageNumber ?? 1;
             string currentSort = sort ?? "desc";
             IQueryable<Cat> cats = _dbContext.Cats;
             
-            if (search != null)
+            if (searchName != null || searchAge != null || searchBreed != null || searchSex != null)
             {
                 currentPageNumber = 1;
-                cats = cats.Where(s => s.Name.Contains(search)
-                                       || s.Breed.Contains(search));
+                if(searchName != null)
+                {
+                    cats = cats.Where(s => s.Name.Contains(searchName));
+                }
+                if(searchAge != null)
+                {
+                    cats = cats.Where(s => s.Age.Equals(searchAge));
+                }
+                if(searchBreed != null)
+                {
+                    cats = cats.Where(s => s.Breed.Contains(searchBreed));
+                }
+                if (searchSex != null)
+                {
+                    cats = cats.Where(s => s.Sex.Equals((Sex)searchSex));
+                }
             }
             switch (currentSort)
             {
@@ -117,14 +131,28 @@ namespace WebApplication.Controllers
         }
         //GET SearchCats
         [HttpGet("[action]")]
-        public async Task<IActionResult> SearchCats(string query)
+        public async Task<IActionResult> GetAgeFiltered(string? sort, int from, int to, int? pageNumber, int? pageSize)
         {
-            var cat = await _dbContext.Cats.Where(x => x.Name.StartsWith(query)).ToListAsync();
-            if (cat == null)
+            int currentPageSize = pageSize ?? 5;
+            int currentPageNumber = pageNumber ?? 1;
+            string currentSort = sort ?? "desc";
+            IQueryable<Cat> cats = _dbContext.Cats;
+
+            if (from != null && to != null)
             {
-                return NotFound("No record found");
+                currentPageNumber = 1;
+                cats = cats.Where(s => s.Age >= from && s.Age <= to); 
             }
-            return Ok(cat);
+            switch (currentSort)
+            {
+                case "desc":
+                    cats = cats.OrderByDescending(x => x.Name);
+                    break;
+                case "asc":
+                    cats = cats.OrderBy(x => x.Name);
+                    break;
+            }
+            return Ok(cats.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize));
         }
 
     }

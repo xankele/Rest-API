@@ -24,31 +24,39 @@ namespace WebApplication.Controllers
 
         // GET: api/<AdoptionsController>
         [HttpGet]
-        public async Task<IActionResult> Get(int? pageNumber, int? pageSize)
+        public async Task<IActionResult> Get(string? sort, DateTime? searchDate, int? searchCat, int? searchUser, int? pageNumber, int? pageSize)
         {
             int currentPageSize = pageSize ?? 5;
             int currentPageNumber = pageNumber ?? 1;
-            var adoptions = await _dbContext.Adoptions.ToListAsync();
-            return Ok(adoptions.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize));
-        }
-        // GET: api/<AdoptionsController>
-        [HttpGet("[action]")]
-        public async Task<IActionResult> GetSortedByDate(string sort)
-        {
-            IQueryable<Adoption> adoptions;
-            switch (sort)
+            string currentSort = sort ?? "desc";
+            IQueryable<Adoption> adoptions = _dbContext.Adoptions;
+
+            if (searchDate != null || searchCat != null || searchUser != null)
+            {
+                currentPageNumber = 1;
+                if (searchDate != null)
+                {
+                    adoptions = adoptions.Where(s => s.Date.Equals(searchDate));
+                }
+                if (searchCat != null)
+                {
+                    adoptions = adoptions.Where(s => s.Cat.Equals(searchCat));
+                }
+                if (searchUser != null)
+                {
+                    adoptions = adoptions.Where(s => s.User.Equals(searchUser));
+                }
+            }
+            switch (currentSort)
             {
                 case "desc":
-                    adoptions = _dbContext.Adoptions.OrderByDescending(x => x.Date);
+                    adoptions = adoptions.OrderByDescending(x => x.Date);
                     break;
                 case "asc":
-                    adoptions = _dbContext.Adoptions.OrderBy(x => x.Date);
-                    break;
-                default:
-                    adoptions = _dbContext.Adoptions;
+                    adoptions = adoptions.OrderBy(x => x.Date);
                     break;
             }
-            return Ok(adoptions);
+            return Ok(adoptions.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize));
         }
         // GET api/<AdoptionsController>/5
         [HttpGet("{id}")]
@@ -115,6 +123,31 @@ namespace WebApplication.Controllers
                 await _dbContext.SaveChangesAsync();
                 return Ok("Record deleted");
             }
+        }
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetDateFiltered(string? sort, DateTime from, DateTime to, int? pageNumber, int? pageSize)
+        {
+            int currentPageSize = pageSize ?? 5;
+            int currentPageNumber = pageNumber ?? 1;
+            string currentSort = sort ?? "desc";
+            IQueryable<Adoption> adoptions = _dbContext.Adoptions;
+
+            if (from != null && to != null)
+            {
+                currentPageNumber = 1;
+                adoptions = adoptions.Where(s => s.Date >= from && s.Date <= to);
+            }
+            switch (currentSort)
+            {
+                case "desc":
+                    adoptions = adoptions.OrderByDescending(x => x.Date);
+                    break;
+                case "asc":
+                    adoptions = adoptions.OrderBy(x => x.Date);
+                    break;
+            }
+            return Ok(adoptions.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize));
         }
     }
 }
