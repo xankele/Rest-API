@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication.Data;
 
 namespace WebApplication.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211106233732_Migration2")]
+    partial class Migration2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,12 +37,7 @@ namespace WebApplication.Migrations
                     b.Property<int>("User")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Adoptions");
                 });
@@ -98,18 +95,6 @@ namespace WebApplication.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("WebApplication.Models.Adoption", b =>
-                {
-                    b.HasOne("WebApplication.Models.User", null)
-                        .WithMany("Adoptions")
-                        .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("WebApplication.Models.User", b =>
-                {
-                    b.Navigation("Adoptions");
                 });
 #pragma warning restore 612, 618
         }

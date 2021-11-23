@@ -21,12 +21,46 @@ namespace WebApplication.Controllers
         {
             _dbContext = dbContext;
         }
-            
+
         // GET: api/<CatsController>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(string? sort, string? searchName, string? searchBreed, int? searchAge, int? searchSex, int? pageNumber, int? pageSize)
         {
-            return Ok(await _dbContext.Cats.ToListAsync());
+            int currentPageSize = pageSize ?? 5;
+            int currentPageNumber = pageNumber ?? 1;
+            string currentSort = sort ?? "desc";
+            IQueryable<Cat> cats = _dbContext.Cats;
+            
+            if (searchName != null || searchAge != null || searchBreed != null || searchSex != null)
+            {
+                currentPageNumber = 1;
+                if(searchName != null)
+                {
+                    cats = cats.Where(s => s.Name.Contains(searchName));
+                }
+                if(searchAge != null)
+                {
+                    cats = cats.Where(s => s.Age.Equals(searchAge));
+                }
+                if(searchBreed != null)
+                {
+                    cats = cats.Where(s => s.Breed.Contains(searchBreed));
+                }
+                if (searchSex != null)
+                {
+                    cats = cats.Where(s => s.Sex.Equals((Sex)searchSex));
+                }
+            }
+            switch (currentSort)
+            {
+                case "desc":
+                    cats = cats.OrderByDescending(x => x.Name);
+                    break;
+                case "asc":
+                    cats = cats.OrderBy(x => x.Name);
+                    break;
+            }
+            return Ok(cats.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize));
         }
 
         // GET api/<CatsController>/5
@@ -45,9 +79,17 @@ namespace WebApplication.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Cat cat)
         {
-            await _dbContext.Cats.AddAsync(cat);
-            await _dbContext.SaveChangesAsync();
-            return StatusCode(StatusCodes.Status201Created);
+            if(ModelState.IsValid)
+            {
+                await _dbContext.Cats.AddAsync(cat);
+                await _dbContext.SaveChangesAsync();
+                return StatusCode(StatusCodes.Status201Created);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
+            
         }
 
         // PUT api/<CatsController>/5
@@ -87,5 +129,31 @@ namespace WebApplication.Controllers
             }
             
         }
+        //GET SearchCats
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetAgeFiltered(string? sort, int from, int to, int? pageNumber, int? pageSize)
+        {
+            int currentPageSize = pageSize ?? 5;
+            int currentPageNumber = pageNumber ?? 1;
+            string currentSort = sort ?? "desc";
+            IQueryable<Cat> cats = _dbContext.Cats;
+
+            if (from != null && to != null)
+            {
+                currentPageNumber = 1;
+                cats = cats.Where(s => s.Age >= from && s.Age <= to); 
+            }
+            switch (currentSort)
+            {
+                case "desc":
+                    cats = cats.OrderByDescending(x => x.Name);
+                    break;
+                case "asc":
+                    cats = cats.OrderBy(x => x.Name);
+                    break;
+            }
+            return Ok(cats.Skip((currentPageNumber - 1) * currentPageSize).Take(currentPageSize));
+        }
+
     }
 }

@@ -1,0 +1,13 @@
+<h1>{{title}}</h1>
+<h3>Cats</h3>
+<ul>
+  <li *ngFor='let cat of cats'>{{cat.id}} - {{cat.name}} - {{cat.sex}}</li>
+</ul>
+<h3>Users</h3>
+<ul>
+  <li *ngFor='let user of users'>{{user.id}} - {{user.name}}</li>
+</ul>
+<h3>Adoptions</h3>
+<ul>
+  <li *ngFor='let adoption of adoptions'>{{adoption.id}} - {{adoption.date}}</li>
+</ul>
