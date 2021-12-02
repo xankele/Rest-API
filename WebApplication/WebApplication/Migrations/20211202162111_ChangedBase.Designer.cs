@@ -10,8 +10,8 @@ using WebApplication.Data;
 namespace WebApplication.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20211106233732_Migration2")]
-    partial class Migration2
+    [Migration("20211202162111_ChangedBase")]
+    partial class ChangedBase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,16 +28,20 @@ namespace WebApplication.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("Cat")
+                    b.Property<int>("CatId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("User")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CatId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Adoptions");
                 });
@@ -95,6 +99,30 @@ namespace WebApplication.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("WebApplication.Models.Adoption", b =>
+                {
+                    b.HasOne("WebApplication.Models.Cat", "Cat")
+                        .WithMany()
+                        .HasForeignKey("CatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication.Models.User", "User")
+                        .WithMany("Adoptions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cat");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApplication.Models.User", b =>
+                {
+                    b.Navigation("Adoptions");
                 });
 #pragma warning restore 612, 618
         }
