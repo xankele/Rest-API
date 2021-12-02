@@ -40,11 +40,11 @@ namespace WebApplication.Controllers
                 }
                 if (searchCat != null)
                 {
-                    adoptions = adoptions.Where(s => s.Cat.Equals(searchCat));
+                    adoptions = adoptions.Where(s => s.CatId.Equals(searchCat));
                 }
                 if (searchUser != null)
                 {
-                    adoptions = adoptions.Where(s => s.User.Equals(searchUser));
+                    adoptions = adoptions.Where(s => s.UserId.Equals(searchUser));
                 }
             }
             switch (currentSort)
@@ -91,8 +91,8 @@ namespace WebApplication.Controllers
         public async Task<IActionResult> Put(int id, [FromBody] Adoption adoptionObj)
         {
             var adoption = await _dbContext.Adoptions.FindAsync(id);
-            var user = await _dbContext.Users.FindAsync(adoptionObj.User);
-            var cat = _dbContext.Cats.Find(adoptionObj.Cat);
+            var user = await _dbContext.Users.FindAsync(adoptionObj.UserId);
+            var cat = _dbContext.Cats.Find(adoptionObj.CatId);
 
             if (adoption == null || cat == null || user == null)
             {
@@ -101,8 +101,8 @@ namespace WebApplication.Controllers
             else
             {
                 adoption.Date = adoptionObj.Date;
-                adoption.Cat = adoptionObj.Cat;
-                adoption.User = adoptionObj.User;
+                adoption.CatId = adoptionObj.CatId;
+                adoption.UserId = adoptionObj.UserId;
                 await _dbContext.SaveChangesAsync();
                 return Ok("Record updated successfully");
             }
@@ -126,7 +126,7 @@ namespace WebApplication.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> GetDateFiltered(string? sort, DateTime from, DateTime to, int? pageNumber, int? pageSize)
+        public async Task<IActionResult> GetDateFiltered(string? sort, DateTime? from, DateTime? to, int? pageNumber, int? pageSize)
         {
             int currentPageSize = pageSize ?? 5;
             int currentPageNumber = pageNumber ?? 1;

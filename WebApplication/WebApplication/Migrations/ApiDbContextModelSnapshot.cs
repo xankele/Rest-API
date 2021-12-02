@@ -26,19 +26,18 @@ namespace WebApplication.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("Cat")
+                    b.Property<int>("CatId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("User")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CatId");
 
                     b.HasIndex("UserId");
 
@@ -102,9 +101,21 @@ namespace WebApplication.Migrations
 
             modelBuilder.Entity("WebApplication.Models.Adoption", b =>
                 {
-                    b.HasOne("WebApplication.Models.User", null)
+                    b.HasOne("WebApplication.Models.Cat", "Cat")
+                        .WithMany()
+                        .HasForeignKey("CatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication.Models.User", "User")
                         .WithMany("Adoptions")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cat");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("WebApplication.Models.User", b =>

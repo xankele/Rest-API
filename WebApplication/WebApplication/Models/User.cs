@@ -22,6 +22,6 @@ namespace WebApplication.Models
         [Required]
         [StringLength(9, ErrorMessage = "{0} length must be between {2} and {1}.", MinimumLength = 8)]
         public string PhoneNumber { get; set; }
-        //public ICollection<Adoption>? Adoptions { get; set; }
+        public ICollection<Adoption> Adoptions { get; set; }
     }
 }
